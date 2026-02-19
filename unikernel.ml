@@ -1867,7 +1867,7 @@ module Main (N : Mirage_net.S) (ASSETS : Mirage_kv.RO) = struct
           in
           let a_record = (3600l, ipv4s) and quad_a_record = (3600l, ipv6s) in
           (if Ipaddr.V4.Set.is_empty ipv4s then trie
-           else Dns_trie.insert fqdn Dns.Rr_map.A a_record trie)
+           else Dns_trie.insert fqdn Dns.Rr_map.A a_record (Dns_trie.insert (Ipaddr.V4.to_domain_name (Ipaddr.V4.Set.choose ipv4s)) Dns.Rr_map.Ptr (3600l, Domain_name.host_exn fqdn) trie))
           |>
           if Ipaddr.V6.Set.is_empty ipv6s then Fun.id
           else Dns_trie.insert fqdn Dns.Rr_map.Aaaa quad_a_record
