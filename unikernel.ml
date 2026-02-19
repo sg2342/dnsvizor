@@ -421,7 +421,7 @@ module Net (N : Mirage_net.S) = struct
         | Dhcp_server.Input.Update (_lease_opt, leases) ->
             (* if lease_opt is present, the lease got removed! *)
             t.leases <- leases;
-            Logs.debug (fun m ->
+            Logs.info (fun m ->
                 m "Received packet %a - updated lease database" Dhcp_wire.pp_pkt
                   pkt);
             Lwt.return_unit
@@ -433,7 +433,9 @@ module Net (N : Mirage_net.S) = struct
             Lwt.return_unit
         | Dhcp_server.Input.Reply (reply, lease_opt, leases) -> (
             (match lease_opt with
-              | None -> Lwt.return (Ok reply)
+            | None ->
+               Logs.info (fun m -> m "YYYY");
+               Lwt.return (Ok reply)
               | Some (lease, opts) -> (
                   Logs.info (fun m ->
                       m "Handing out lease %s, received options %a"
@@ -1753,6 +1755,7 @@ module Main (N : Mirage_net.S) (ASSETS : Mirage_kv.RO) = struct
            options
        with
         | Some (Dhcp_wire.Client_fqdn (flags, name)) ->
+            Logs.info (fun m -> m "XXXX");
             if List.mem `Server_A flags && not (List.mem `No_update flags) then
               update_dns tcp lease name >>= fun r ->
               update_tlstunnel tcp lease name >>= fun r2 -> Lwt.return (r @ r2)
